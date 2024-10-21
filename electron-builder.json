@@ -1,0 +1,9 @@
+{
+    "productName": "electron-vite-app",
+    "appId": "com.electron.electron-vite-app",
+    "files": ["./src/main/index.js", "./src/main/preload.js", "./dist"],
+    "extraFiles": ["./videos", "./cvideo"], 
+    "directories": {
+      "output": "./builder"
+    }
+  }

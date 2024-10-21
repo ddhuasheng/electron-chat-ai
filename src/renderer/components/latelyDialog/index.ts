@@ -1,0 +1,1 @@
+export { default as LatelyDialog } from './index.vue'
