@@ -4,11 +4,12 @@ import { NEllipsis, NInput, NIcon, NDropdown } from "naive-ui";
 import { useIndexedDB, useDialogUtils } from "@/hooks";
 import { latelyDialogState } from "@/types";
 import { useLatelyDialogStore, useFavoriteStore } from "@/store";
+import { ComponentTypeEnum } from '@/enums'
 import { EllipsisHorizontal } from "@vicons/ionicons5";
 
 const { addLatelyList, setCurrentDialog, findIndexLatelyDialog } =
   useLatelyDialogStore();
-const { setActiveFavorite } = useFavoriteStore();
+const { setComponent } = useFavoriteStore();
 const list = ref<latelyDialogState[]>([]);
 const { getAll, remove } = useIndexedDB("favorite");
 const { confirm, success } = useDialogUtils();
@@ -30,7 +31,7 @@ const clickHandle = (item: latelyDialogState) => {
     addLatelyList(item.id, item.name, item.history);
     setCurrentDialog(0);
   }
-  setActiveFavorite(false);
+  setComponent(ComponentTypeEnum.CONTAINER);
 };
 
 const handleSelect = (key: string, item: latelyDialogState) => {

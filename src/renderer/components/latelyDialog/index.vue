@@ -156,7 +156,7 @@ const handleSelect = (key: string, index: number) => {
             </div>
           </div>
         </div>
-        <n-empty v-else description="暂无对话" style="--n-text-color: #333"/>
+        <n-empty v-else description="暂无对话" style="--n-icon-color: #ccc;--n-text-color:#ccc;"/>
       </n-collapse-item>
     </n-collapse>
   </div>

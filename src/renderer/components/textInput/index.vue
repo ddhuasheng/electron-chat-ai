@@ -4,7 +4,7 @@ import { ref } from "vue";
 import { storeToRefs } from "pinia";
 import { Message } from "@/utils";
 import { RoleEnum } from "@/enums";
-import { ChatServices } from '@/apis'
+import { ChatServices } from "@/apis";
 import { useLatelyDialogStore } from "@/store";
 
 const store = useLatelyDialogStore();
@@ -31,14 +31,16 @@ const submit = () => {
   } else {
     store.putLatelyList(Message[RoleEnum.ROLE_USER](value.value));
   }
-  
-  value.value = ''
-  store.setRunning(true)
-  ChatServices.chat(current.value).then(res => {
-    store.putLatelyList(Message[RoleEnum.ROLE_ASSISTANT](res.content));
-  }).finally(() => {
-    store.setRunning(false)
-  })
+
+  value.value = "";
+  store.setRunning(true);
+  ChatServices.chat(current.value)
+    .then((res) => {
+      store.putLatelyList(Message[RoleEnum.ROLE_ASSISTANT](res.content));
+    })
+    .finally(() => {
+      store.setRunning(false);
+    });
 };
 </script>
 
@@ -53,7 +55,11 @@ const submit = () => {
       maxRows: 3,
     }"
     @keydown.enter="submit"
-    style="border: 1px solid #ccc; --n-text-color: #333"
+    style="
+      --n-text-color: #333;
+      --n-placeholder-color: #333;
+      --n-border: 1px solid #f2f2f5;
+    "
   >
     <template #suffix>
       <n-button type="primary" size="small" @click="submit">发送</n-button>
@@ -61,5 +67,4 @@ const submit = () => {
   </n-input>
 </template>
 
-<style lang="less" scoped>
-</style>
+<style lang="less" scoped></style>
