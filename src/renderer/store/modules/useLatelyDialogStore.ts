@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import {  ref, computed } from "vue";
+import { ref, computed } from "vue";
 import { latelyDialogState, LatelyDialogHistoryState } from "@/types";
 import { Message } from "@/utils";
 import { RoleEnum } from "@/enums";
@@ -73,9 +73,7 @@ export const useLatelyDialogStore = defineStore(
 
     const findIndexLatelyDialog = (id: number) => {
       return latelyList.value.findIndex((item) => item.id === id);
-    }
-
- 
+    };
 
     return {
       currentDialog,

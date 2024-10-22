@@ -1,6 +1,5 @@
 export * from './sider'
 export * from './latelyDialog'
 export * from './favorite'
-export * from './favoriteList'
 export * from './container'
 export * from './textInput'

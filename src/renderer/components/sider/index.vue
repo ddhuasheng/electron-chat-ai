@@ -29,7 +29,7 @@ const operHandle = (isFavorite: boolean) => {
 
     <LatelyDialog />
     
-    <div class="mt-[24px] px-[12px] py-[6px] rounded-[12px] cursor-pointer hover:bg-[#f0f2f5]" :class="`${isActiveFavorite ? 'bg-[#fff]' : ''}`" @click="operHandle(true)">我的收藏</div>
+    <div class="mt-[24px] px-[8px] py-[8px] rounded-[12px] cursor-pointer hover:bg-[#f0f2f5]" :class="`${isActiveFavorite ? 'bg-[#fff]' : ''}`" @click="operHandle(true)">我的收藏</div>
   </div>
 </template>
 

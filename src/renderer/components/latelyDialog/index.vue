@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { ref } from "vue";
+import { ref, h } from "vue";
 import {
   NCollapse,
   NCollapseItem,
@@ -9,11 +9,9 @@ import {
   NDropdown,
   NEmpty,
   NInput,
-  useDialog,
-  useMessage,
 } from "naive-ui";
 import { useLatelyDialogStore, useFavoriteStore } from "@/store";
-import { useIndexedDB } from "@/hooks";
+import { useIndexedDB, useDialogUtils } from "@/hooks";
 import {
   CaretForward,
   CaretDownOutline,
@@ -27,8 +25,7 @@ const { latelyList, currentDialog } = storeToRefs(store);
 const isExpanded = ref(true);
 const editIndex = ref<number | null>(null);
 const name = ref<string>();
-const dialog = useDialog();
-const message = useMessage();
+const { success, confirm, warning } = useDialogUtils()
 const db = useIndexedDB("favorite");
 
 const options = [
@@ -50,15 +47,6 @@ const updateHandle = (name: string[]) => {
   isExpanded.value = !!name.length;
 };
 
-const blurHandle = () => {
-  if (name.value) {
-    store.setName(editIndex.value!, name.value!);
-  }
-
-  editIndex.value = null;
-  name.value = "";
-};
-
 const clickHandle = (index: number) => {
   store.setCurrentDialog(index);
   setActiveFavorite(false)
@@ -71,15 +59,29 @@ const handleSelect = (key: string, index: number) => {
       name.value = latelyList.value[index].name;
       store.setCurrentDialog(index);
       setActiveFavorite(false)
+      confirm({
+        title: '重命名',
+        content: () => h(NInput, {
+          value: name.value,
+          onUpdateValue: (value: string) => {
+            name.value = value
+          }
+        }),
+        onPositiveClick: () => {
+          if (name.value) {
+            store.setName(index, name.value)
+            editIndex.value = null;
+            name.value = "";
+          }
+        }
+      })
       break;
     case "remove":
-      dialog.warning({
+      confirm({
+        type: "warning",
         title: "警告",
         content: "确定要删除吗？",
-        positiveText: "确定",
-        negativeText: "取消",
         onPositiveClick: () => {
-
           if (latelyList.value.length === 1) {
             store.setCurrentDialog(null)
           } else if(index === currentDialog.value) {
@@ -94,7 +96,7 @@ const handleSelect = (key: string, index: number) => {
       const id = latelyList.value[index].id;
       db.get(id).then((res) => {
         if (res) {
-          message.warning("该对话已收藏！！！");
+          warning("该对话已收藏！！！");
           return;
         }
 
@@ -103,7 +105,7 @@ const handleSelect = (key: string, index: number) => {
           ...data,
           history: JSON.stringify(data.history),
         });
-        message.success("收藏成功");
+        success("收藏成功");
       });
       break;
   }
@@ -137,16 +139,7 @@ const handleSelect = (key: string, index: number) => {
             :key="index"
             @click="clickHandle(index)"
           >
-            <div v-if="editIndex === index">
-              <n-input
-                autofocus
-                v-model:value="name"
-                @blur="blurHandle"
-                @keydown.enter="blurHandle"
-                style="--n-text-color: #333"
-              ></n-input>
-            </div>
-            <div v-else>
+            <div>
               <n-ellipsis :line-clamp="1">
                 {{ item.name }}
               </n-ellipsis>

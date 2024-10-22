@@ -9,7 +9,7 @@ export interface Option {
 }
 
 export const LongPinia = (globalOption?: Option) => {
-  return (context: PiniaPluginContext & { options: Option }) => {
+  return (context: PiniaPluginContext) => {
     const { store, options } = context;
 
     const realOption = {

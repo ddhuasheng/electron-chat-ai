@@ -1,17 +1,25 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { NEllipsis, NInput } from "naive-ui";
-import { useIndexedDB } from "@/hooks";
+import { NEllipsis, NInput, NIcon, NDropdown } from "naive-ui";
+import { useIndexedDB, useDialogUtils } from "@/hooks";
 import { latelyDialogState } from "@/types";
 import { useLatelyDialogStore, useFavoriteStore } from "@/store";
+import { EllipsisHorizontal } from "@vicons/ionicons5";
 
 const { addLatelyList, setCurrentDialog, findIndexLatelyDialog } =
   useLatelyDialogStore();
 const { setActiveFavorite } = useFavoriteStore();
 const list = ref<latelyDialogState[]>([]);
-const { getAll } = useIndexedDB("favorite");
+const { getAll, remove } = useIndexedDB("favorite");
+const { confirm, success } = useDialogUtils();
 
-const search = ref()
+const search = ref();
+const options = [
+  {
+    label: "删除",
+    key: "remove",
+  },
+];
 
 const clickHandle = (item: latelyDialogState) => {
   const index = findIndexLatelyDialog(item.id);
@@ -25,6 +33,23 @@ const clickHandle = (item: latelyDialogState) => {
   setActiveFavorite(false);
 };
 
+const handleSelect = (key: string, item: latelyDialogState) => {
+  switch (key) {
+    case "remove":
+      confirm({
+        type: "warning",
+        title: "警告",
+        content: "确定要删除吗？",
+        onPositiveClick: async () => {
+          await remove(item.id)
+          success("删除成功")
+        },
+      });
+
+      break;
+  }
+};
+
 const init = async () => {
   const data = (await getAll()) as unknown as latelyDialogState[];
   list.value = data.map((item) => {
@@ -36,15 +61,14 @@ const init = async () => {
 };
 
 const filterList = computed(() => {
-
   if (!search.value) {
     return list.value;
   }
 
   return list.value.filter((item) => {
     return item.name.includes(search.value);
-  })
-})
+  });
+});
 
 init();
 </script>
@@ -52,7 +76,18 @@ init();
 <template>
   <div>
     <div>
-      <n-input v-model:value="search" clearable autofocus placeholder="请输入搜索内容" style="--n-text-color:#333; width: 40%;--n-placeholder-color:#333;--n-border: 1px solid #f2f2f5"></n-input>
+      <n-input
+        v-model:value="search"
+        clearable
+        autofocus
+        placeholder="请输入搜索内容"
+        style="
+          --n-text-color: #333;
+          width: 40%;
+          --n-placeholder-color: #333;
+          --n-border: 1px solid #f2f2f5;
+        "
+      ></n-input>
     </div>
     <div class="grid grid-cols-4 gap-[10px] mt-[12px]">
       <div
@@ -61,8 +96,19 @@ init();
         :key="item.id"
         class="px-[12px] py-[8px] rounded-[12px] h-[150px] bg-[#fff] cursor-pointer"
       >
-        <div class="text-[#333] font-bold text-[16px]">
+        <div
+          class="text-[#333] font-bold text-[16px] flex justify-between items-center"
+        >
           <n-ellipsis :line-clamp="1">{{ item.name }}</n-ellipsis>
+          <n-dropdown
+            trigger="hover"
+            :options="options"
+            @select.stop="(key) => handleSelect(key, item)"
+          >
+            <n-icon>
+              <EllipsisHorizontal />
+            </n-icon>
+          </n-dropdown>
         </div>
         <div>
           <n-ellipsis :line-clamp="5">
@@ -73,9 +119,7 @@ init();
               {{ history.content }}
             </div>
             <template #tooltip>
-              <div style="text-align: center">
-                请点击查看更多
-              </div>
+              <div style="text-align: center">请点击查看更多</div>
             </template>
           </n-ellipsis>
         </div>
