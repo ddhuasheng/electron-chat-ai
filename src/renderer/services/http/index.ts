@@ -1,11 +1,11 @@
-import axios from "axios";
+import axios, { type AxiosRequestConfig } from "axios";
 
-const request = axios.create({
+const instance = axios.create({
   baseURL: "http://localhost:5000/",
   timeout: 200000,
 });
 
-request.interceptors.request.use(
+instance.interceptors.request.use(
   (req) => {
     return req;
   },
@@ -14,8 +14,26 @@ request.interceptors.request.use(
   }
 );
 
-request.interceptors.response.use((res) => {
+instance.interceptors.response.use((res) => {
   return res.data;
 });
+
+type Method = 'get' | 'post' | 'put' | 'delete' | 'options';
+type RequestMethod = {
+  [K in Method]?: <T>(url: string, config?: AxiosRequestConfig) => Promise<T>
+}
+type Request = <T>(config: AxiosRequestConfig) => Promise<T> 
+
+const request: Request & RequestMethod = async <T>(config: AxiosRequestConfig) => {
+  return await instance<null, T>(config);
+};
+
+const methods: Method[] = ['get', 'post', 'put', 'delete', 'options']
+
+methods.forEach((method) => {
+  request[method] = <T>(url: string, config: AxiosRequestConfig = {}) => {
+    return request<T>(Object.assign(config, { method, url }))
+  }
+})
 
 export { request };
