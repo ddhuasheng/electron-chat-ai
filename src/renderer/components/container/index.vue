@@ -6,16 +6,16 @@ import {
   NSpin,
   type ScrollbarInst,
 } from "naive-ui";
-import { ref, watch, nextTick } from "vue";
+import { ref, watch, nextTick, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { MdPreview } from "md-editor-v3";
-import { TextInput, Favorite } from "../index";
+import { TextInput, Favorite, FileList } from "../index";
+import { ComponentTypeEnum, RoleEnum } from '@/enums'
 import { useLatelyDialogStore, useFavoriteStore } from "@/store";
-import { RoleEnum } from "@/enums";
 import "md-editor-v3/lib/style.css";
 
 const store = useLatelyDialogStore();
-const { isActiveFavorite } = storeToRefs(useFavoriteStore());
+const { component } = storeToRefs(useFavoriteStore());
 const { current, running, currentDialog } = storeToRefs(store);
 
 const scrollbarRef = ref<ScrollbarInst>();
@@ -24,24 +24,30 @@ watch(
   () => currentDialog.value,
   () => {
     nextTick(() => {
-      !isActiveFavorite.value && scrollbarRef.value?.scrollTo({ top: 9999999 });
+      if(component.value === ComponentTypeEnum.CONTAINER) {
+        scrollbarRef.value?.scrollTo({ top: 9999999 });
+      }
     });
   }
 );
+
+const notContainer = computed(() => {
+  return component.value !== ComponentTypeEnum.CONTAINER;
+})
 </script>
 
 <template>
-  <div class="py-[12px] px-[24px]" :class="{ 'bg-[#f9fafb]': isActiveFavorite }">
+  <div class="py-[12px] px-[24px]" :class="{ 'bg-[#f9fafb]': notContainer }">
     <n-scrollbar
       ref="scrollbarRef"
       :style="{
-        maxHeight: `calc(100vh - 24px - ${isActiveFavorite ? '0' : '80px'})`,
-        height: `calc(100vh - 24px - ${isActiveFavorite ? '0' : '80px'})`,
+        maxHeight: `calc(100vh - 24px - ${notContainer ? '0' : '80px'})`,
+        height: `calc(100vh - 24px - ${notContainer ? '0' : '80px'})`,
       }"
     >
       <n-list
         style="height: 100%; --n-text-color: #333; --n-color: #fff"
-        v-if="!isActiveFavorite"
+        v-if="component === ComponentTypeEnum.CONTAINER"
       >
         <template #header>
           <div>
@@ -70,10 +76,12 @@ watch(
         </n-list-item>
       </n-list>
 
-      <Favorite v-else />
+      <Favorite v-else-if="component === ComponentTypeEnum.FAVORITE" />
+
+      <FileList v-else-if="component === ComponentTypeEnum.FILE" />
     </n-scrollbar>
 
-    <TextInput v-if="!isActiveFavorite" />
+    <TextInput v-if="!notContainer" />
   </div>
 </template>
 

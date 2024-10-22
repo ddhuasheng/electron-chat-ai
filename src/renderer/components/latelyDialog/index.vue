@@ -12,6 +12,7 @@ import {
 } from "naive-ui";
 import { useLatelyDialogStore, useFavoriteStore } from "@/store";
 import { useIndexedDB, useDialogUtils } from "@/hooks";
+import { ComponentTypeEnum } from '@/enums'
 import {
   CaretForward,
   CaretDownOutline,
@@ -19,7 +20,7 @@ import {
 } from "@vicons/ionicons5";
 
 const store = useLatelyDialogStore();
-const { setActiveFavorite } = useFavoriteStore()
+const { setComponent } = useFavoriteStore()
 
 const { latelyList, currentDialog } = storeToRefs(store);
 const isExpanded = ref(true);
@@ -49,7 +50,7 @@ const updateHandle = (name: string[]) => {
 
 const clickHandle = (index: number) => {
   store.setCurrentDialog(index);
-  setActiveFavorite(false)
+  setComponent(ComponentTypeEnum.CONTAINER)
 };
 
 const handleSelect = (key: string, index: number) => {
@@ -58,7 +59,7 @@ const handleSelect = (key: string, index: number) => {
       editIndex.value = index;
       name.value = latelyList.value[index].name;
       store.setCurrentDialog(index);
-      setActiveFavorite(false)
+      setComponent(ComponentTypeEnum.CONTAINER)
       confirm({
         title: '重命名',
         content: () => h(NInput, {
@@ -87,7 +88,7 @@ const handleSelect = (key: string, index: number) => {
           } else if(index === currentDialog.value) {
             store.setCurrentDialog(0)
           }
-          setActiveFavorite(false)
+          setComponent(ComponentTypeEnum.CONTAINER)
           store.removeLatelyList(index);
         },
       });

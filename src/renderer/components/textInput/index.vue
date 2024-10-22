@@ -4,7 +4,7 @@ import { ref } from "vue";
 import { storeToRefs } from "pinia";
 import { Message } from "@/utils";
 import { RoleEnum } from "@/enums";
-import { ChatServices } from '@/services'
+import { ChatServices } from '@/apis'
 import { useLatelyDialogStore } from "@/store";
 
 const store = useLatelyDialogStore();

@@ -1,4 +1,4 @@
-import { request } from "../index";
+import { request } from "@/services";
 import { latelyDialogState } from "@/types";
 
 export const ChatServices = {

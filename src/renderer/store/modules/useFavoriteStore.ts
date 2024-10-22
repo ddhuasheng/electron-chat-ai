@@ -1,17 +1,23 @@
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { defineStore } from "pinia";
+import { ref } from "vue";
+import { ComponentTypeEnum } from '@/enums'
 
-export const useFavoriteStore = defineStore('favorite', () => {
-  const isActiveFavorite = ref(false)
 
-  const setActiveFavorite = (value: boolean) => {
-    isActiveFavorite.value = value
+export const useFavoriteStore = defineStore(
+  "container",
+  () => {
+    const component = ref<ComponentTypeEnum>(ComponentTypeEnum.CONTAINER)
+
+    const setComponent = (value: ComponentTypeEnum) => {
+      component.value = value;
+    }
+
+    return {
+      component,
+      setComponent,
+    };
+  },
+  {
+    cache: false,
   }
-
-  return {
-    isActiveFavorite,
-    setActiveFavorite
-  }
-}, {
-  cache: false
-})
+);
