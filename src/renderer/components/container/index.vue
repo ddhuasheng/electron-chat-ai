@@ -5,28 +5,38 @@ import {
   NListItem,
   NSpin,
   NEllipsis,
+  NIcon,
   type ScrollbarInst,
 } from "naive-ui";
 import { ref, watch, nextTick, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { MdPreview } from "md-editor-v3";
 import { TextInput, Favorite, FileList } from "../index";
-import { ComponentTypeEnum, RoleEnum } from '@/enums'
+import { ComponentTypeEnum, RoleEnum } from "@/enums";
 import { useLatelyDialogStore, useFavoriteStore } from "@/store";
 import { LatelyDialogHistoryState } from "@/types";
+import { useCopy, useDialogUtils } from "@/hooks";
+import { CopyOutlined } from "@vicons/antd";
 import "md-editor-v3/lib/style.css";
 
+const { copy } = useCopy();
+const { success } = useDialogUtils();
 const store = useLatelyDialogStore();
 const { component, fileNames, fileIds } = storeToRefs(useFavoriteStore());
 const { current, running, currentDialog } = storeToRefs(store);
 
 const scrollbarRef = ref<ScrollbarInst>();
 
+const copyHandle = (content: string) => {
+  copy(content);
+  success("复制成功");
+};
+
 watch(
   () => currentDialog.value,
   () => {
     nextTick(() => {
-      if(component.value === ComponentTypeEnum.CONTAINER) {
+      if (component.value === ComponentTypeEnum.CONTAINER) {
         scrollbarRef.value?.scrollTo({ top: 9999999 });
       }
     });
@@ -35,11 +45,13 @@ watch(
 
 const notContainer = computed(() => {
   return component.value !== ComponentTypeEnum.CONTAINER;
-})
+});
 
 const history = computed(() => {
-  return current.value.history.filter((item: LatelyDialogHistoryState) => !item.isFile)
-})
+  return current.value.history.filter(
+    (item: LatelyDialogHistoryState) => !item.isFile
+  );
+});
 </script>
 
 <template>
@@ -60,19 +72,36 @@ const history = computed(() => {
             <n-ellipsis :line-clamp="1">
               {{ current?.name }}
             </n-ellipsis>
-            <n-ellipsis :line-clamp="1" class="bg-[#f9fafb] px-[8px] py-[6px] rounded-[8px]">
-              {{ current.isFile || fileIds.length ? fileNames.join("、") : '' }}
+            <n-ellipsis
+              :line-clamp="1"
+              class="bg-[#f9fafb] px-[8px] py-[6px] rounded-[8px]"
+            >
+              {{ current.isFile || fileIds.length ? fileNames.join("、") : "" }}
             </n-ellipsis>
           </div>
         </template>
 
         <n-list-item v-for="(item, index) in history" :key="index">
-          <md-preview
-            v-if="item.role !== RoleEnum.ROLE_USER"
-            v-model:model-value="item.content"
-            :editor-id="`editor-${index}`"
-            noIconfont
-          />
+          <div v-if="item.role !== RoleEnum.ROLE_USER">
+            <md-preview
+              v-model:model-value="item.content"
+              :editor-id="`editor-${index}`"
+              noIconfont
+            />
+            <div
+              class="flex gap-[5px] px-[20px]"
+              v-if="item.role === RoleEnum.ROLE_ASSISTANT"
+            >
+              <n-icon
+                color="#ccc"
+                size="16"
+                @click="copyHandle(item.content)"
+                class="cursor-pointer"
+              >
+                <CopyOutlined />
+              </n-icon>
+            </div>
+          </div>
           <div v-else class="flex justify-end">
             <span
               class="px-[12px] py-[8px] rounded-[8px] bg-[rgba(0,0,0,.04)] text-[#333]"
