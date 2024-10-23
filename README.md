@@ -1,5 +1,11 @@
 # Vue 3 + TypeScript + Vite
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
-
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+### 使用
+1. 需要安装 nodejs，版本为 16+
+2. 安装依赖：npm install
+3. 启动服务：npm run dev
+4. 注册moonshot账号，获取apikey， 替换server.py中的apiKey
+5. 如果是开发环境将server.py里获取sys参数代码注释
+6. 安装python环境，如果是vscode，安装python插件，并配置python环境
+7. 启动python服务
+8. 生产环境启动服务需要传入apikey，命令：server.exe apikey
