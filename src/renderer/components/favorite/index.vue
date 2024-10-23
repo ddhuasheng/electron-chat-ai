@@ -45,6 +45,7 @@ const handleSelect = (key: string, item: latelyDialogState) => {
         onPositiveClick: async () => {
           await remove(item.id)
           success("删除成功")
+          init()
         },
       });
 

@@ -13,10 +13,11 @@ import { MdPreview } from "md-editor-v3";
 import { TextInput, Favorite, FileList } from "../index";
 import { ComponentTypeEnum, RoleEnum } from '@/enums'
 import { useLatelyDialogStore, useFavoriteStore } from "@/store";
+import { LatelyDialogHistoryState } from "@/types";
 import "md-editor-v3/lib/style.css";
 
 const store = useLatelyDialogStore();
-const { component, fileNames } = storeToRefs(useFavoriteStore());
+const { component, fileNames, fileIds } = storeToRefs(useFavoriteStore());
 const { current, running, currentDialog } = storeToRefs(store);
 
 const scrollbarRef = ref<ScrollbarInst>();
@@ -37,11 +38,7 @@ const notContainer = computed(() => {
 })
 
 const history = computed(() => {
-  if (current.value.isFile) {
-    return current.value.history.filter((_,index) => index !== 1)
-  } else {
-    return current.value.history
-  }
+  return current.value.history.filter((item: LatelyDialogHistoryState) => !item.isFile)
 })
 </script>
 
@@ -64,7 +61,7 @@ const history = computed(() => {
               {{ current?.name }}
             </n-ellipsis>
             <n-ellipsis :line-clamp="1" class="bg-[#f9fafb] px-[8px] py-[6px] rounded-[8px]">
-              {{ current.isFile ? fileNames.join("、") : '' }}
+              {{ current.isFile || fileIds.length ? fileNames.join("、") : '' }}
             </n-ellipsis>
           </div>
         </template>

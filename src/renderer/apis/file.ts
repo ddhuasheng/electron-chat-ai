@@ -25,10 +25,10 @@ export const FileChatServices = {
     });
   },
   FileChat: (
-    data: Omit<latelyDialogState, "name"> & { fileId: string }
+    data: Omit<latelyDialogState, "name"> & { fileIds: string[] }
   ) => {
     return request<{
-      fileContent: string;
+      fileContents: string[];
       content: string;
     }>({
       url: "/api/v1/file/chat",

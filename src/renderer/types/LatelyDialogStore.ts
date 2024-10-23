@@ -9,5 +9,6 @@ export interface latelyDialogState {
 
 export interface LatelyDialogHistoryState {
   role: RoleEnum,
+  isFile?: boolean;
   content: string;
 }

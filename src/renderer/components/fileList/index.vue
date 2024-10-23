@@ -7,6 +7,7 @@ import {
   NPopconfirm,
   NEmpty,
   NSpace,
+  NButton
 } from "naive-ui";
 import { UploadFile } from "../index";
 import { FileListVO } from "@/types";
@@ -15,11 +16,19 @@ import { ComponentTypeEnum } from "@/enums";
 import { useDialogUtils } from "@/hooks";
 import { FileChatServices } from "@/apis";
 
-const { success } = useDialogUtils();
+const { success, warning } = useDialogUtils();
 const { setComponent, setFileIds, setFileNames } = useFavoriteStore();
-const { setCurrentDialog } = useLatelyDialogStore()
+const { setCurrentDialog } = useLatelyDialogStore();
+
+const records = ref<FileListVO[]>([])
 
 const columns: DataTableColumns<FileListVO> = [
+  {
+    type: "selection",
+    width: 30,
+    multiple: true,
+    className: "select-column-custom",
+  },
   {
     title: "文件id",
     key: "id",
@@ -64,9 +73,9 @@ const columns: DataTableColumns<FileListVO> = [
             },
             onClick: () => {
               setComponent(ComponentTypeEnum.CONTAINER);
-              setFileIds([row.id])
-              setFileNames([row.name])
-              setCurrentDialog(null)
+              setFileIds([row.id]);
+              setFileNames([row.name]);
+              setCurrentDialog(null);
             },
           },
           "对话"
@@ -113,13 +122,30 @@ const init = () => {
     });
 };
 
+const handleCheck = (_: string[], rows: FileListVO[]) => {
+  records.value = [...rows]
+}
+
+const multipleChat = () => {
+  if (records.value.length === 0) {
+    warning("请选择文件");
+    return
+  }
+
+  setFileIds(records.value.map((item) => item.id));
+  setFileNames(records.value.map((item) => item.name));
+  setComponent(ComponentTypeEnum.CONTAINER);
+  setCurrentDialog(null)
+}
+
 init();
 </script>
 
 <template>
   <div>
-    <div class="border-b">
+    <div class="border-b flex justify-between">
       <upload-file @finish="init" />
+      <n-button @click="multipleChat" style="--n-text-color: #333; --n-border: 1px solid rgba(0, 0, 0, 0.1)">多文件对话</n-button>
     </div>
 
     <n-data-table
@@ -127,6 +153,7 @@ init();
       :loading="loading"
       :columns="columns"
       :bordered="false"
+      :rowKey="(row) => row.id"
       style="
         --n-text-color: #333;
         --n-th-text-color: #333;
@@ -136,7 +163,10 @@ init();
         --n-td-text-color: #333;
         --n-merged-td-color-hover: #f3f4f6;
         --n-icon-color: #333;
+        --n-color-table: #fff;
+        --n-merged-color-table: #fff;
       "
+      @update:checked-row-keys="(keys, rows) => handleCheck(keys, rows)"
     >
       <template #empty>
         <n-empty
@@ -148,4 +178,10 @@ init();
   </div>
 </template>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+.select-column {
+  div {
+    background-color: #fff;
+  }
+}
+</style>

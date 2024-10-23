@@ -25,7 +25,7 @@ const beforeUploadHandle = async (options: { file: UploadFileInfo, fileList: Upl
   <n-upload :default-upload="false" @before-upload="beforeUploadHandle" :file-list="[]">
     <n-button
       style="--n-text-color: #333; --n-border: 1px solid rgba(0, 0, 0, 0.1)"
-      >选择文件
+      >上传文件
       <template #icon>
         <n-icon size="14" color="#333">
           <UploadOutlined />

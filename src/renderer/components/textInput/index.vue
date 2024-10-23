@@ -21,41 +21,49 @@ const submit = () => {
     return;
   }
 
-  const userMessage = Message[RoleEnum.ROLE_USER](value.value)
-  value.value = ''
+  const userMessage = Message[RoleEnum.ROLE_USER](value.value);
+  value.value = "";
 
   if (!fileIds.value.length) {
     if (currentDialog.value === null) {
       const now = Date.now();
       const name = "新对话-" + now;
-      store.addLatelyList(now, name, [
-        system,
-        userMessage,
-      ]);
+      store.addLatelyList(now, name, [system, userMessage]);
       currentDialog.value = 0;
     } else {
       store.putLatelyList(userMessage);
     }
   }
 
-
   store.setRunning(true);
 
   if (current.value.history.length === 1 && fileIds.value.length) {
     FileChatServices.FileChat({
-      fileId: fileIds.value[0],
+      fileIds: fileIds.value,
       history: current.value.history,
       id: current.value.id,
     })
       .then((res) => {
         const now = Date.now();
         const name = "新对话-" + now;
-        store.addLatelyList(now, name, [
-          system,
-          Message[RoleEnum.ROLE_SYSTEM](res.fileContent),
-        ], true);
-        currentDialog.value = 0;
-        store.putLatelyList(userMessage)
+
+        res.fileContents.forEach((item) => {
+          if (currentDialog.value === null) {
+            store.addLatelyList(
+              now,
+              name,
+              [
+                system,
+                { ...Message[RoleEnum.ROLE_SYSTEM](item), isFile: true },
+              ],
+              true
+            );
+            currentDialog.value = 0;
+          } else {
+            store.putLatelyList(Message[RoleEnum.ROLE_SYSTEM](item), true);
+          }
+        });
+        store.putLatelyList(userMessage);
         store.putLatelyList(Message[RoleEnum.ROLE_ASSISTANT](res.content));
       })
       .finally(() => {

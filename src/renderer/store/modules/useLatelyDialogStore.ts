@@ -20,11 +20,12 @@ export const useLatelyDialogStore = defineStore(
       history: LatelyDialogHistoryState[],
       isFile = false
     ) => {
+
       latelyList.value.unshift({
         id,
         name,
         history,
-        isFile
+        isFile,
       });
 
       if (latelyList.value.length > 5) {
@@ -34,11 +35,12 @@ export const useLatelyDialogStore = defineStore(
 
     const putLatelyList = (
       item: LatelyDialogHistoryState,
+      isFile = false,
       index: number = currentDialog.value!
     ) => {
       const history = latelyList.value[index].history;
 
-      history.push(item);
+      history.push({ ...item, isFile });
 
       latelyList.value[index] = {
         ...latelyList.value[index],
@@ -58,6 +60,7 @@ export const useLatelyDialogStore = defineStore(
         return {
           id: Date.now(),
           name: "",
+          isFile: false,
           history: [defineMessage],
         };
       }
