@@ -4,10 +4,11 @@ import { ref } from "vue";
 import { storeToRefs } from "pinia";
 import { Message } from "@/utils";
 import { RoleEnum } from "@/enums";
-import { ChatServices } from "@/apis";
-import { useLatelyDialogStore } from "@/store";
+import { ChatServices, FileChatServices } from "@/apis";
+import { useLatelyDialogStore, useFavoriteStore } from "@/store";
 
 const store = useLatelyDialogStore();
+const { fileIds } = storeToRefs(useFavoriteStore());
 
 const { currentDialog, current, running } = storeToRefs(store);
 
@@ -20,27 +21,55 @@ const submit = () => {
     return;
   }
 
-  if (currentDialog.value === null) {
-    const now = Date.now();
-    const name = "新对话-" + now;
-    store.addLatelyList(now, name, [
-      system,
-      Message[RoleEnum.ROLE_USER](value.value),
-    ]);
-    currentDialog.value = 0;
-  } else {
-    store.putLatelyList(Message[RoleEnum.ROLE_USER](value.value));
+  const userMessage = Message[RoleEnum.ROLE_USER](value.value)
+  value.value = ''
+
+  if (!fileIds.value.length) {
+    if (currentDialog.value === null) {
+      const now = Date.now();
+      const name = "新对话-" + now;
+      store.addLatelyList(now, name, [
+        system,
+        userMessage,
+      ]);
+      currentDialog.value = 0;
+    } else {
+      store.putLatelyList(userMessage);
+    }
   }
 
-  value.value = "";
+
   store.setRunning(true);
-  ChatServices.chat(current.value)
-    .then((res) => {
-      store.putLatelyList(Message[RoleEnum.ROLE_ASSISTANT](res.content));
+
+  if (current.value.history.length === 1 && fileIds.value.length) {
+    FileChatServices.FileChat({
+      fileId: fileIds.value[0],
+      history: current.value.history,
+      id: current.value.id,
     })
-    .finally(() => {
-      store.setRunning(false);
-    });
+      .then((res) => {
+        const now = Date.now();
+        const name = "新对话-" + now;
+        store.addLatelyList(now, name, [
+          system,
+          Message[RoleEnum.ROLE_SYSTEM](res.fileContent),
+        ], true);
+        currentDialog.value = 0;
+        store.putLatelyList(userMessage)
+        store.putLatelyList(Message[RoleEnum.ROLE_ASSISTANT](res.content));
+      })
+      .finally(() => {
+        store.setRunning(false);
+      });
+  } else {
+    ChatServices.chat(current.value)
+      .then((res) => {
+        store.putLatelyList(Message[RoleEnum.ROLE_ASSISTANT](res.content));
+      })
+      .finally(() => {
+        store.setRunning(false);
+      });
+  }
 };
 </script>
 

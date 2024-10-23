@@ -20,7 +20,7 @@ import {
 } from "@vicons/ionicons5";
 
 const store = useLatelyDialogStore();
-const { setComponent } = useFavoriteStore()
+const { setComponent, setFileIds } = useFavoriteStore()
 
 const { latelyList, currentDialog } = storeToRefs(store);
 const isExpanded = ref(true);
@@ -51,6 +51,7 @@ const updateHandle = (name: string[]) => {
 const clickHandle = (index: number) => {
   store.setCurrentDialog(index);
   setComponent(ComponentTypeEnum.CONTAINER)
+  setFileIds([])
 };
 
 const handleSelect = (key: string, index: number) => {
@@ -60,6 +61,7 @@ const handleSelect = (key: string, index: number) => {
       name.value = latelyList.value[index].name;
       store.setCurrentDialog(index);
       setComponent(ComponentTypeEnum.CONTAINER)
+      setFileIds([])
       confirm({
         title: '重命名',
         content: () => h(NInput, {
@@ -88,6 +90,7 @@ const handleSelect = (key: string, index: number) => {
           } else if(index === currentDialog.value) {
             store.setCurrentDialog(0)
           }
+          setFileIds([])
           setComponent(ComponentTypeEnum.CONTAINER)
           store.removeLatelyList(index);
         },

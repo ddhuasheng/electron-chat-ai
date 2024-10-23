@@ -4,6 +4,7 @@ import {
   NList,
   NListItem,
   NSpin,
+  NEllipsis,
   type ScrollbarInst,
 } from "naive-ui";
 import { ref, watch, nextTick, computed } from "vue";
@@ -15,7 +16,7 @@ import { useLatelyDialogStore, useFavoriteStore } from "@/store";
 import "md-editor-v3/lib/style.css";
 
 const store = useLatelyDialogStore();
-const { component } = storeToRefs(useFavoriteStore());
+const { component, fileNames } = storeToRefs(useFavoriteStore());
 const { current, running, currentDialog } = storeToRefs(store);
 
 const scrollbarRef = ref<ScrollbarInst>();
@@ -34,6 +35,14 @@ watch(
 const notContainer = computed(() => {
   return component.value !== ComponentTypeEnum.CONTAINER;
 })
+
+const history = computed(() => {
+  if (current.value.isFile) {
+    return current.value.history.filter((_,index) => index !== 1)
+  } else {
+    return current.value.history
+  }
+})
 </script>
 
 <template>
@@ -50,12 +59,17 @@ const notContainer = computed(() => {
         v-if="component === ComponentTypeEnum.CONTAINER"
       >
         <template #header>
-          <div>
-            {{ current?.name }}
+          <div class="flex justify-between items-center border-b-[1px]">
+            <n-ellipsis :line-clamp="1">
+              {{ current?.name }}
+            </n-ellipsis>
+            <n-ellipsis :line-clamp="1" class="bg-[#f9fafb] px-[8px] py-[6px] rounded-[8px]">
+              {{ current.isFile ? fileNames.join("、") : '' }}
+            </n-ellipsis>
           </div>
         </template>
 
-        <n-list-item v-for="(item, index) in current?.history" :key="index">
+        <n-list-item v-for="(item, index) in history" :key="index">
           <md-preview
             v-if="item.role !== RoleEnum.ROLE_USER"
             v-model:model-value="item.content"

@@ -9,7 +9,7 @@ import { EllipsisHorizontal } from "@vicons/ionicons5";
 
 const { addLatelyList, setCurrentDialog, findIndexLatelyDialog } =
   useLatelyDialogStore();
-const { setComponent } = useFavoriteStore();
+const { setComponent, setFileIds } = useFavoriteStore();
 const list = ref<latelyDialogState[]>([]);
 const { getAll, remove } = useIndexedDB("favorite");
 const { confirm, success } = useDialogUtils();
@@ -32,6 +32,7 @@ const clickHandle = (item: latelyDialogState) => {
     setCurrentDialog(0);
   }
   setComponent(ComponentTypeEnum.CONTAINER);
+  setFileIds([])
 };
 
 const handleSelect = (key: string, item: latelyDialogState) => {
@@ -104,7 +105,7 @@ init();
           <n-dropdown
             trigger="hover"
             :options="options"
-            @select.stop="(key) => handleSelect(key, item)"
+            @select="(key) => handleSelect(key, item)"
           >
             <n-icon>
               <EllipsisHorizontal />
@@ -114,7 +115,7 @@ init();
         <div>
           <n-ellipsis :line-clamp="5">
             <div
-              v-for="(history, index) in item.history.slice(0, 1)"
+              v-for="(history, index) in item.history.slice(2, 4)"
               :key="index"
             >
               {{ history.content }}

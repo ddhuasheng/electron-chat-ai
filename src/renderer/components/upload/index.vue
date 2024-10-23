@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { NUpload, NButton, NIcon, type UploadFileInfo } from "naive-ui";
-import { uploadFile } from '@/apis'
+import { FileChatServices } from '@/apis'
 import { useDialogUtils } from '@/hooks'
 import { UploadOutlined } from "@vicons/antd";
 
@@ -13,7 +13,7 @@ const { success } = useDialogUtils()
 const beforeUploadHandle = async (options: { file: UploadFileInfo, fileList: UploadFileInfo[] }) => {
   const formData = new FormData();
   formData.append('file', options.file.file as File);
-  const res = await uploadFile(formData)
+  const res = await FileChatServices.uploadFile(formData)
 
   emits('finish', res.fileId)
 

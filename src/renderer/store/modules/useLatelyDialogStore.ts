@@ -17,12 +17,14 @@ export const useLatelyDialogStore = defineStore(
     const addLatelyList = (
       id: number,
       name: string,
-      history: LatelyDialogHistoryState[]
+      history: LatelyDialogHistoryState[],
+      isFile = false
     ) => {
       latelyList.value.unshift({
         id,
         name,
         history,
+        isFile
       });
 
       if (latelyList.value.length > 5) {

@@ -12,6 +12,9 @@ const store = useFavoriteStore();
 const { component } = storeToRefs(store);
 
 const operHandle = (type: ComponentTypeEnum) => {
+  if (type === ComponentTypeEnum.CONTAINER) {
+    store.setFileIds([])
+  }
   setCurrentDialog(null);
   store.setComponent(type);
 };
