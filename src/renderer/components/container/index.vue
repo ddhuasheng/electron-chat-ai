@@ -14,22 +14,36 @@ import { MdPreview } from "md-editor-v3";
 import { TextInput, Favorite, FileList } from "../index";
 import { ComponentTypeEnum, RoleEnum } from "@/enums";
 import { useLatelyDialogStore, useFavoriteStore } from "@/store";
-import { LatelyDialogHistoryState } from "@/types";
-import { useCopy, useDialogUtils } from "@/hooks";
-import { CopyOutlined } from "@vicons/antd";
+import type { LatelyDialogHistoryState, SpeechReturnType } from "@/types";
+import { useCopy, useDialogUtils, useSpeech } from "@/hooks";
+import {
+  CopyOutlined,
+  PlayCircleOutlined,
+  PauseCircleOutlined,
+} from "@vicons/antd";
 import "md-editor-v3/lib/style.css";
 
 const { copy } = useCopy();
+const { speech } = useSpeech();
 const { success } = useDialogUtils();
 const store = useLatelyDialogStore();
 const { component, fileNames, fileIds } = storeToRefs(useFavoriteStore());
 const { current, running, currentDialog } = storeToRefs(store);
 
 const scrollbarRef = ref<ScrollbarInst>();
+const speechInstace = ref<SpeechReturnType>();
 
 const copyHandle = (content: string) => {
   copy(content);
   success("复制成功");
+};
+
+const speak = (text: string) => {
+  speechInstace.value = speech(text);
+
+  speechInstace.value?.addEventListener("end", () => {
+    speechInstace.value = undefined;
+  });
 };
 
 watch(
@@ -51,6 +65,12 @@ const history = computed(() => {
   return current.value.history.filter(
     (item: LatelyDialogHistoryState) => !item.isFile
   );
+});
+
+const isRunning = computed(() => {
+  if (!speechInstace.value) return false;
+
+  return true;
 });
 </script>
 
@@ -99,6 +119,20 @@ const history = computed(() => {
                 class="cursor-pointer"
               >
                 <CopyOutlined />
+              </n-icon>
+
+              <n-icon
+                v-if="!isRunning"
+                color="#ccc"
+                size="16"
+                @click="speak(item.content)"
+                class="cursor-pointer"
+              >
+                <PlayCircleOutlined />
+              </n-icon>
+
+              <n-icon v-else color="#ccc" size="16" class="cursor-pointer">
+                <PauseCircleOutlined />
               </n-icon>
             </div>
           </div>

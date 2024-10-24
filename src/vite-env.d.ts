@@ -17,6 +17,10 @@ declare interface Window {
   readonly electron: {
     readonly startDrag: (filename: string) => void
   }
+
+  readonly responsiveVoice: {
+    readonly speak: (text: string, options: any) => void
+  }
 }
 
 declare module 'uuid'
