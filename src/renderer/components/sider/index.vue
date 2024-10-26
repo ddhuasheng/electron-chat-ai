@@ -5,7 +5,7 @@ import { LatelyDialog } from "../index";
 import { useLatelyDialogStore, useFavoriteStore } from "@/store";
 import { ComponentTypeEnum } from "@/enums";
 import { Add } from "@vicons/ionicons5";
-import { FileSearchOutlined, DropboxOutlined } from "@vicons/antd";
+import { FileSearchOutlined, HeartFilled } from "@vicons/antd";
 
 const { setCurrentDialog } = useLatelyDialogStore();
 const store = useFavoriteStore();
@@ -51,8 +51,8 @@ const operHandle = (type: ComponentTypeEnum) => {
       :class="`${component === ComponentTypeEnum.FAVORITE ? 'bg-[#fff]' : ''}`"
       @click="operHandle(ComponentTypeEnum.FAVORITE)"
     >
-      <NIcon size="16" color="#333" class="mr-[8px]">
-        <DropboxOutlined />
+      <NIcon size="16" color="red" class="mr-[8px]">
+        <HeartFilled />
       </NIcon>
       我的收藏
     </div>

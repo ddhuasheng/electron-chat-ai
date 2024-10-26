@@ -20,8 +20,11 @@ import {
   CopyOutlined,
   PlayCircleOutlined,
   PauseCircleOutlined,
+  RedoOutlined
 } from "@vicons/antd";
 import "md-editor-v3/lib/style.css";
+import { ChatServices } from "@/apis";
+import { Message } from "@/utils";
 
 const { copy } = useCopy();
 const { speech } = useSpeech();
@@ -45,6 +48,16 @@ const speak = (text: string) => {
     speechInstace.value = undefined;
   });
 };
+
+const refreshHandle = () => {
+  store.popLatelyList()
+  store.setRunning(true);
+  ChatServices.chat(current.value).then(res => {
+    store.putLatelyList(Message[RoleEnum.ROLE_ASSISTANT](res.content));
+  }).finally(() => {
+    store.setRunning(false);
+  })
+}
 
 watch(
   () => currentDialog.value,
@@ -116,7 +129,7 @@ const isRunning = computed(() => {
                 color="#ccc"
                 size="16"
                 @click="copyHandle(item.content)"
-                class="cursor-pointer"
+                class="cursor-pointer hover:bg-[rgba(0,0,0,.04)]"
               >
                 <CopyOutlined />
               </n-icon>
@@ -126,13 +139,17 @@ const isRunning = computed(() => {
                 color="#ccc"
                 size="16"
                 @click="speak(item.content)"
-                class="cursor-pointer"
+                class="cursor-pointer hover:bg-[rgba(0,0,0,.04)]"
               >
                 <PlayCircleOutlined />
               </n-icon>
 
-              <n-icon v-else color="#ccc" size="16" class="cursor-pointer">
+              <n-icon v-else color="#ccc" size="16" class="cursor-pointer hover:bg-[rgba(0,0,0,.04)]">
                 <PauseCircleOutlined />
+              </n-icon>
+
+              <n-icon @click="refreshHandle" v-if="index === history.length - 1" color="#ccc" size="16" class="cursor-pointer hover:bg-[rgba(0,0,0,.04)]">
+                <RedoOutlined color="#ccc" size="16"/>
               </n-icon>
             </div>
           </div>
@@ -159,4 +176,6 @@ const isRunning = computed(() => {
   </div>
 </template>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+
+</style>

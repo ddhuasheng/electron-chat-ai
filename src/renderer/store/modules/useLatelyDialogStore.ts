@@ -51,6 +51,10 @@ export const useLatelyDialogStore = defineStore(
       latelyList.value.splice(index, 1);
     };
 
+    const popLatelyList = () => {
+      latelyList.value[currentDialog.value!].history.pop()
+    }
+
     const setCurrentDialog = (id: number | null) => {
       currentDialog.value = id;
     };
@@ -88,6 +92,7 @@ export const useLatelyDialogStore = defineStore(
       addLatelyList,
       putLatelyList,
       removeLatelyList,
+      popLatelyList,
       findIndexLatelyDialog,
       setCurrentDialog,
       setName,
