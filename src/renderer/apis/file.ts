@@ -4,20 +4,20 @@ import { FileListVO, latelyDialogState } from "@/types";
 export const FileChatServices = {
   getFileList: () => {
     return request<{ files: FileListVO[] }>({
-      url: "/api/v1/file/list",
+      url: "/file/list",
       method: "get",
     })
   },
   uploadFile: (file: any) => {
     return request<{ fileId: string }>({
-      url: "/api/v1/file/upload",
+      url: "/file/upload",
       method: "post",
       data: file,
     });
   },
   deleteFile: (fileId: string) => {
     return request({
-      url: `/api/v1/file/delete`,
+      url: `/file/delete`,
       method: "post",
       data: {
         fileId,
@@ -31,7 +31,7 @@ export const FileChatServices = {
       fileContents: string[];
       content: string;
     }>({
-      url: "/api/v1/file/chat",
+      url: "/file/chat",
       method: "post",
       data,
     });

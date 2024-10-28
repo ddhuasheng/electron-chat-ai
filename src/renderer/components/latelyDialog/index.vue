@@ -12,21 +12,22 @@ import {
 } from "naive-ui";
 import { useLatelyDialogStore, useFavoriteStore } from "@/store";
 import { useIndexedDB, useDialogUtils } from "@/hooks";
-import { ComponentTypeEnum } from '@/enums'
+import { ComponentTypeEnum } from "@/enums";
 import {
   CaretForward,
   CaretDownOutline,
   EllipsisHorizontal,
 } from "@vicons/ionicons5";
 import { latelyDialogState } from "@/types";
+import { shared } from "@/utils";
 
 const store = useLatelyDialogStore();
-const { setComponent, setFileIds } = useFavoriteStore()
+const { setComponent, setFileIds } = useFavoriteStore();
 
 const { latelyList, currentDialog } = storeToRefs(store);
 const isExpanded = ref(true);
 const name = ref<string>();
-const { success, confirm, warning } = useDialogUtils()
+const { success, confirm, warning } = useDialogUtils();
 const db = useIndexedDB("favorite");
 
 const options = [
@@ -37,6 +38,10 @@ const options = [
   {
     label: "重命名",
     key: "rename",
+  },
+  {
+    label: "分享",
+    key: "share",
   },
   {
     label: "删除",
@@ -50,32 +55,33 @@ const updateHandle = (name: string[]) => {
 
 const clickHandle = (id: number) => {
   store.setCurrentDialog(id);
-  setComponent(ComponentTypeEnum.CONTAINER)
-  setFileIds([])
+  setComponent(ComponentTypeEnum.CONTAINER);
+  setFileIds([]);
 };
 
-const handleSelect = (key: string, item: latelyDialogState) => {
+const handleSelect = async (key: string, item: latelyDialogState) => {
   switch (key) {
     case "rename":
       name.value = item.name;
       store.setCurrentDialog(item.id);
-      setComponent(ComponentTypeEnum.CONTAINER)
-      setFileIds([])
+      setComponent(ComponentTypeEnum.CONTAINER);
+      setFileIds([]);
       confirm({
-        title: '重命名',
-        content: () => h(NInput, {
-          value: name.value,
-          onUpdateValue: (value: string) => {
-            name.value = value
-          }
-        }),
+        title: "重命名",
+        content: () =>
+          h(NInput, {
+            value: name.value,
+            onUpdateValue: (value: string) => {
+              name.value = value;
+            },
+          }),
         onPositiveClick: () => {
           if (name.value) {
-            store.setName(item.id, name.value)
+            store.setName(item.id, name.value);
             name.value = "";
           }
-        }
-      })
+        },
+      });
       break;
     case "remove":
       confirm({
@@ -84,12 +90,12 @@ const handleSelect = (key: string, item: latelyDialogState) => {
         content: "确定要删除吗？",
         onPositiveClick: () => {
           if (latelyList.value.length === 1) {
-            store.setCurrentDialog(null)
-          } else if(item.id === currentDialog.value) {
-            store.setCurrentDialog(item.id)
+            store.setCurrentDialog(null);
+          } else if (item.id === currentDialog.value) {
+            store.setCurrentDialog(item.id);
           }
-          setFileIds([])
-          setComponent(ComponentTypeEnum.CONTAINER)
+          setFileIds([]);
+          setComponent(ComponentTypeEnum.CONTAINER);
           store.removeLatelyList(item.id);
         },
       });
@@ -109,9 +115,13 @@ const handleSelect = (key: string, item: latelyDialogState) => {
         success("收藏成功");
       });
       break;
+    case "share":
+      await shared(JSON.stringify(item));
+      success("已复制分享链接");
+
+      break;
   }
 };
-
 </script>
 
 <template>
@@ -156,7 +166,11 @@ const handleSelect = (key: string, item: latelyDialogState) => {
             </div>
           </div>
         </div>
-        <n-empty v-else description="暂无对话" style="--n-icon-color: #ccc;--n-text-color:#ccc;"/>
+        <n-empty
+          v-else
+          description="暂无对话"
+          style="--n-icon-color: #ccc; --n-text-color: #ccc"
+        />
       </n-collapse-item>
     </n-collapse>
   </div>

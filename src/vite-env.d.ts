@@ -15,7 +15,9 @@ declare interface Window {
   }
 
   readonly electron: {
-    readonly startDrag: (filename: string) => void
+    readonly compress: (inputText: string) => string
+    readonly uncompress: (compressedString: string) => string
+    readonly on: (eventName: string, callback: (...args: any[]) => void) => void
   }
 
   readonly responsiveVoice: {

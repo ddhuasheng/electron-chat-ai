@@ -4,7 +4,8 @@ import { NEllipsis, NInput, NIcon, NDropdown } from "naive-ui";
 import { useIndexedDB, useDialogUtils } from "@/hooks";
 import { latelyDialogState } from "@/types";
 import { useLatelyDialogStore, useFavoriteStore } from "@/store";
-import { ComponentTypeEnum } from '@/enums'
+import { ComponentTypeEnum } from "@/enums";
+import { shared } from "@/utils";
 import { EllipsisHorizontal } from "@vicons/ionicons5";
 
 const { addLatelyList, setCurrentDialog, findIndexLatelyDialog } =
@@ -16,6 +17,10 @@ const { confirm, success } = useDialogUtils();
 
 const search = ref();
 const options = [
+  {
+    label: "分享",
+    key: "share",
+  },
   {
     label: "删除",
     key: "remove",
@@ -32,10 +37,10 @@ const clickHandle = (item: latelyDialogState) => {
     setCurrentDialog(item.id);
   }
   setComponent(ComponentTypeEnum.CONTAINER);
-  setFileIds([])
+  setFileIds([]);
 };
 
-const handleSelect = (key: string, item: latelyDialogState) => {
+const handleSelect = async (key: string, item: latelyDialogState) => {
   switch (key) {
     case "remove":
       confirm({
@@ -43,11 +48,17 @@ const handleSelect = (key: string, item: latelyDialogState) => {
         title: "警告",
         content: "确定要删除吗？",
         onPositiveClick: async () => {
-          await remove(item.id)
-          success("删除成功")
-          init()
+          await remove(item.id);
+          success("删除成功");
+          init();
         },
       });
+
+      break;
+
+    case "share":
+      await shared(JSON.stringify(item));
+      success("已复制分享链接");
 
       break;
   }

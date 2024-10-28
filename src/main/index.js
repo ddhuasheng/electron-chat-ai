@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain, nativeTheme } = require("electron");
 const { join, resolve } = require("node:path");
+const zlib = require("zlib");
 
 // 获取env必须要用cross-env插件， 区分打包环境和开发环境
 const isDev = process.env.NODE_ENV === "development";
@@ -40,11 +41,17 @@ ipcMain.handle("dark-mode:system", () => {
   nativeTheme.themeSource = "system";
 });
 
-ipcMain.on('ondragstart', (event, filePath) => {
-  event.sender.startDrag({
-    file: path.join(__dirname, filePath),
-  })
-})
+ipcMain.on("compress", (event, inputText) => {
+  const compressResult = zlib.deflateSync(inputText).toString("base64");
+  event.sender.send("compress", compressResult);
+});
+
+ipcMain.on("uncompress", (event, compressedString) => {
+  const text = zlib
+    .inflateSync(Buffer.from(atob(compressedString), "base64"))
+    .toString();
+  event.sender.send("uncompress", text);
+});
 
 app.whenReady().then(() => {
   createWindow();

@@ -21,6 +21,8 @@ contextBridge.exposeInMainWorld('darkMode', {
 })
 
 contextBridge.exposeInMainWorld('electron', {
-  startDrag: (fileName) => ipcRenderer.send('ondragstart', path.join(process.cwd(), fileName))
+  compress: (inputText) => ipcRenderer.send('compress', inputText),
+  uncompress: (compressText) => ipcRenderer.send('uncompress', compressText),
+  on: (channel, func) => ipcRenderer.on(channel, (event, ...args) => func(...args))
 })
   

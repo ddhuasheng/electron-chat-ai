@@ -20,6 +20,13 @@ export default defineConfig({
     port: 8899,
     host: '0.0.0.0',
     cors: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, 'api/')
+      }
+    }
   },
   css: {
     

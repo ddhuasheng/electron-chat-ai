@@ -5,9 +5,10 @@ import {
   dateZhCN,
   darkTheme,
   NDialogProvider,
-  NMessageProvider,
+  NMessageProvider
 } from "naive-ui";
 import { Sider, Container } from "@/components";
+
 
 </script>
 
