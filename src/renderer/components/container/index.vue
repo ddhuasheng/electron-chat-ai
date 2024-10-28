@@ -101,42 +101,39 @@ const isRunning = computed(() => {
 });
 
 onMounted(async () => {
+  // 是否是分享链接打开
+  const searchParams = window.location.href.split("?")[1];
+  const record = searchParams && searchParams.split("shareRecord=")[1];
 
-// 是否是分享链接打开
-const searchParams = window.location.href.split('?')[1];
-const record = searchParams && searchParams.split('shareRecord=')[1];
+  if (record) {
+    const dialog = useDialog();
+    const { destroy } = dialog.info({
+      closable: false,
+      closeOnEsc: false,
+      maskClosable: false,
+      content: () => "正在加载对话，请稍等...",
+      action: () => "",
+    });
 
-if (record) {
-  
-  const dialog = useDialog()
-  const {destroy} = dialog.info({
-    closable: false,
-    closeOnEsc: false,
-    maskClosable: false,
-    content: () => '正在加载对话，请稍等...',
-    action: () => ''
-  })
+    try {
+      const tem = record.replace(" ", "+");
+      const { text } = await utilServices.decompress(tem);
+      const data = JSON.parse(text);
 
-  try {
-    const tem = record.replace(' ', '+')
-    const {text} = await utilServices.decompress(tem)
-    const data = JSON.parse(text);
+      const index = store.findIndexLatelyDialog(data.id);
 
-    const index = store.findIndexLatelyDialog(data.id)
+      if (index === -1) {
+        store.addLatelyList(data.id, data.name, data.history, data.isFile);
+      }
 
-    if (index === -1) {
-      store.addLatelyList(data.id, data.name, data.history, data.isFile);
+      store.setCurrentDialog(data.id);
+    } catch (e) {
+      console.log("分享链接解析失败", e);
+    } finally {
+      destroy();
     }
-
-    store.setCurrentDialog(data.id);
-  } catch (e) {
-    console.log("分享链接解析失败", e);
-  } finally {
-    destroy()
   }
-}
 });
-
 </script>
 
 <template>

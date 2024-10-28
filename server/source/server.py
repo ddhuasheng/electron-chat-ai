@@ -4,6 +4,8 @@ from openai import OpenAI
 from flask_cors import CORS
 from pathlib import Path
 from werkzeug.utils import secure_filename
+import zlib
+import base64
 import sys
 
 app = Flask(__name__)
@@ -16,7 +18,7 @@ current_path = os.path.abspath(os.path.dirname(__file__))
 
 apiKey = sys.argv[1]
 
-client = OpenAI( 
+client = OpenAI(
   api_key = apiKey,
   base_url = "https://api.moonshot.cn/v1"
 )
@@ -139,6 +141,37 @@ def file_chat():
     "content": chating(history)
   }
 
+@app.route('/api/v1/utils/compress', methods=['POST'])
+def compress():
+  data = request.json
+  text = data['text']
+
+  compressed_bytes = zlib.compress(text.encode('utf-8'))
+  compressed_string = base64.b64encode(compressed_bytes).decode('utf-8')
+
+  return {
+    'text': compressed_string
+  }
+
+@app.route('/api/v1/utils/decompress', methods=['POST'])
+def decompress():
+  data = request.json
+  text = data['text']
+
+
+  try:
+    print(text)
+    compressed_bytes = base64.b64decode(text)
+    decompressed_bytes = zlib.decompress(compressed_bytes)
+    decompressed_string = decompressed_bytes.decode('utf-8')
+  except base64.binascii.Error:
+    return jsonify({'error': 'Invalid Base64 encoding'}), 400
+  except zlib.error:
+    return jsonify({'error': 'Invalid zlib compressed data'}), 400
+
+  return {
+    'text': decompressed_string
+  }
 
 if __name__ == '__main__':
   app.run(host='0.0.0.0', port=5000, debug=True)
