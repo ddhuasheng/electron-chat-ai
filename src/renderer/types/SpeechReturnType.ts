@@ -1,9 +1,9 @@
 export type SpeechEvent = "start" | "pause" | "resume" | "end" | 'error';
 
 export interface SpeechReturnType {
-  // pause: () => void;
-  // resume: () => void;
-  // start: () => void;
-  addEventListener: (event: SpeechEvent, callback: () => void) => void;
+  speech: () => void;
+  cancel: () => void;
+  clearAllEventListener: (event: SpeechEvent) => void;
+  addEventListener: (event: SpeechEvent, callback: (e?: any) => void) => void;
   clearEventListener: (event: SpeechEvent, callback: () => void) => void;
 };

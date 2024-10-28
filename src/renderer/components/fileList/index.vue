@@ -122,7 +122,7 @@ const init = () => {
     });
 };
 
-const handleCheck = (_: string[], rows: FileListVO[]) => {
+const handleCheck = (_: any[], rows: any[]) => {
   records.value = [...rows]
 }
 

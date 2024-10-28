@@ -16,7 +16,7 @@ import { TextInput, Favorite, FileList } from "../index";
 import { ComponentTypeEnum, RoleEnum } from "@/enums";
 import { useLatelyDialogStore, useFavoriteStore } from "@/store";
 import type { LatelyDialogHistoryState, SpeechReturnType } from "@/types";
-import { useCopy, useDialogUtils, useSpeech } from "@/hooks";
+import { useCopy, useSpeech } from "@/hooks";
 import {
   CopyOutlined,
   PlayCircleOutlined,
@@ -29,25 +29,36 @@ import { Message } from "@/utils";
 
 const { copy } = useCopy();
 const { speech } = useSpeech();
-const { success } = useDialogUtils();
+
 const store = useLatelyDialogStore();
 const { component, fileNames, fileIds } = storeToRefs(useFavoriteStore());
 const { current, running, currentDialog } = storeToRefs(store);
 
 const scrollbarRef = ref<ScrollbarInst>();
 const speechInstace = ref<SpeechReturnType>();
-
-const copyHandle = (content: string) => {
-  copy(content);
-  success("复制成功");
-};
+const isPause = ref(false);
 
 const speak = (text: string) => {
+
+  if (speechInstace.value) {
+    speechInstace.value.speech()
+  }
+
   speechInstace.value = speech(text);
 
   speechInstace.value?.addEventListener("end", () => {
     speechInstace.value = undefined;
   });
+
+  speechInstace.value?.addEventListener("pause", () => {
+    isPause.value = true;
+  })
+
+  speechInstace.value?.addEventListener("resume", () => {
+    isPause.value = false
+  })
+
+  speechInstace.value?.speech()
 };
 
 const refreshHandle = () => {
@@ -86,7 +97,7 @@ const history = computed(() => {
 const isRunning = computed(() => {
   if (!speechInstace.value) return false;
 
-  return true;
+  return !isPause.value
 });
 </script>
 
@@ -133,7 +144,7 @@ const isRunning = computed(() => {
                   <n-icon
                     color="#ccc"
                     size="16"
-                    @click="copyHandle(item.content)"
+                    @click="copy(item.content)"
                     class="cursor-pointer hover:bg-[rgba(0,0,0,.04)]"
                   >
                     <CopyOutlined />
