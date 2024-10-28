@@ -26,10 +26,10 @@ const clickHandle = (item: latelyDialogState) => {
   const index = findIndexLatelyDialog(item.id);
 
   if (index !== -1) {
-    setCurrentDialog(index);
+    setCurrentDialog(item.id);
   } else {
     addLatelyList(item.id, item.name, item.history);
-    setCurrentDialog(0);
+    setCurrentDialog(item.id);
   }
   setComponent(ComponentTypeEnum.CONTAINER);
   setFileIds([])

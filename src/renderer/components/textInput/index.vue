@@ -12,17 +12,17 @@ const { fileIds } = storeToRefs(useFavoriteStore());
 
 const { currentDialog, current, running } = storeToRefs(store);
 
-const value = ref("");
+const inputValue = ref("");
 
 const system = Message[RoleEnum.ROLE_SYSTEM]();
 
 const submit = () => {
-  if (!value.value || running.value) {
+  if (!inputValue.value || running.value) {
     return;
   }
 
-  const userMessage = Message[RoleEnum.ROLE_USER](value.value);
-  value.value = "";
+  const userMessage = Message[RoleEnum.ROLE_USER](inputValue.value);
+  inputValue.value = "";
 
   if (!fileIds.value.length) {
     if (currentDialog.value === null) {
@@ -58,7 +58,8 @@ const submit = () => {
               ],
               true
             );
-            currentDialog.value = 0;
+
+            store.setCurrentDialog(now)
           } else {
             store.putLatelyList(Message[RoleEnum.ROLE_SYSTEM](item), true);
           }
@@ -83,7 +84,7 @@ const submit = () => {
 
 <template>
   <n-input
-    v-model:value="value"
+    v-model:value="inputValue"
     type="textarea"
     placeholder="请输入内容"
     autofocus

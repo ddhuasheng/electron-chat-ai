@@ -39,9 +39,8 @@ const speechInstace = ref<SpeechReturnType>();
 const isPause = ref(false);
 
 const speak = (text: string) => {
-
   if (speechInstace.value) {
-    speechInstace.value.speech()
+    speechInstace.value.speech();
   }
 
   speechInstace.value = speech(text);
@@ -52,13 +51,13 @@ const speak = (text: string) => {
 
   speechInstace.value?.addEventListener("pause", () => {
     isPause.value = true;
-  })
+  });
 
   speechInstace.value?.addEventListener("resume", () => {
-    isPause.value = false
-  })
+    isPause.value = false;
+  });
 
-  speechInstace.value?.speech()
+  speechInstace.value?.speech();
 };
 
 const refreshHandle = () => {
@@ -97,7 +96,7 @@ const history = computed(() => {
 const isRunning = computed(() => {
   if (!speechInstace.value) return false;
 
-  return !isPause.value
+  return !isPause.value;
 });
 </script>
 
@@ -153,10 +152,9 @@ const isRunning = computed(() => {
                 复制
               </n-popover>
 
-              <n-popover trigger="hover">
+              <n-popover trigger="hover" v-if="!isRunning">
                 <template #trigger>
                   <n-icon
-                    v-if="!isRunning"
                     color="#ccc"
                     size="16"
                     @click="speak(item.content)"
@@ -164,8 +162,13 @@ const isRunning = computed(() => {
                   >
                     <PlayCircleOutlined />
                   </n-icon>
+                </template>
+                语音播放
+              </n-popover>
+
+              <n-popover trigger="hover" v-else>
+                <template #trigger>
                   <n-icon
-                    v-else
                     color="#ccc"
                     size="16"
                     class="cursor-pointer hover:bg-[rgba(0,0,0,.04)]"
@@ -173,14 +176,13 @@ const isRunning = computed(() => {
                     <PauseCircleOutlined />
                   </n-icon>
                 </template>
-                语音播放
+                暂停播放
               </n-popover>
 
-              <n-popover trigger="hover">
+              <n-popover trigger="hover" v-if="index === history.length - 1">
                 <template #trigger>
                   <n-icon
                     @click="refreshHandle"
-                    v-if="index === history.length - 1"
                     color="#ccc"
                     size="16"
                     class="cursor-pointer hover:bg-[rgba(0,0,0,.04)]"

@@ -18,13 +18,13 @@ import {
   CaretDownOutline,
   EllipsisHorizontal,
 } from "@vicons/ionicons5";
+import { latelyDialogState } from "@/types";
 
 const store = useLatelyDialogStore();
 const { setComponent, setFileIds } = useFavoriteStore()
 
 const { latelyList, currentDialog } = storeToRefs(store);
 const isExpanded = ref(true);
-const editIndex = ref<number | null>(null);
 const name = ref<string>();
 const { success, confirm, warning } = useDialogUtils()
 const db = useIndexedDB("favorite");
@@ -48,18 +48,17 @@ const updateHandle = (name: string[]) => {
   isExpanded.value = !!name.length;
 };
 
-const clickHandle = (index: number) => {
-  store.setCurrentDialog(index);
+const clickHandle = (id: number) => {
+  store.setCurrentDialog(id);
   setComponent(ComponentTypeEnum.CONTAINER)
   setFileIds([])
 };
 
-const handleSelect = (key: string, index: number) => {
+const handleSelect = (key: string, item: latelyDialogState) => {
   switch (key) {
     case "rename":
-      editIndex.value = index;
-      name.value = latelyList.value[index].name;
-      store.setCurrentDialog(index);
+      name.value = item.name;
+      store.setCurrentDialog(item.id);
       setComponent(ComponentTypeEnum.CONTAINER)
       setFileIds([])
       confirm({
@@ -72,8 +71,7 @@ const handleSelect = (key: string, index: number) => {
         }),
         onPositiveClick: () => {
           if (name.value) {
-            store.setName(index, name.value)
-            editIndex.value = null;
+            store.setName(item.id, name.value)
             name.value = "";
           }
         }
@@ -87,27 +85,26 @@ const handleSelect = (key: string, index: number) => {
         onPositiveClick: () => {
           if (latelyList.value.length === 1) {
             store.setCurrentDialog(null)
-          } else if(index === currentDialog.value) {
-            store.setCurrentDialog(0)
+          } else if(item.id === currentDialog.value) {
+            store.setCurrentDialog(item.id)
           }
           setFileIds([])
           setComponent(ComponentTypeEnum.CONTAINER)
-          store.removeLatelyList(index);
+          store.removeLatelyList(item.id);
         },
       });
       break;
     case "favorite":
-      const id = latelyList.value[index].id;
+      const id = item.id;
       db.get(id).then((res) => {
         if (res) {
           warning("该对话已收藏！！！");
           return;
         }
 
-        const data = latelyList.value[index];
         db.add({
-          ...data,
-          history: JSON.stringify(data.history),
+          ...item,
+          history: JSON.stringify(item.history),
         });
         success("收藏成功");
       });
@@ -138,10 +135,10 @@ const handleSelect = (key: string, index: number) => {
         </template>
         <div class="dialogList" v-if="latelyList?.length">
           <div
-            :class="{ active: index === currentDialog }"
+            :class="{ active: item.id === currentDialog }"
             v-for="(item, index) in latelyList"
             :key="index"
-            @click="clickHandle(index)"
+            @click="clickHandle(item.id)"
           >
             <div>
               <n-ellipsis :line-clamp="1">
@@ -150,7 +147,7 @@ const handleSelect = (key: string, index: number) => {
               <n-dropdown
                 trigger="hover"
                 :options="options"
-                @select="(key) => handleSelect(key, index)"
+                @select="(key) => handleSelect(key, item)"
               >
                 <n-icon color="#333" style="margin-top: 4px">
                   <EllipsisHorizontal />

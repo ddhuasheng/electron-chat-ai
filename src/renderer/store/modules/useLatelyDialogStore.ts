@@ -20,7 +20,6 @@ export const useLatelyDialogStore = defineStore(
       history: LatelyDialogHistoryState[],
       isFile = false
     ) => {
-
       latelyList.value.unshift({
         id,
         name,
@@ -36,24 +35,25 @@ export const useLatelyDialogStore = defineStore(
     const putLatelyList = (
       item: LatelyDialogHistoryState,
       isFile = false,
-      index: number = currentDialog.value!
+      id: number = currentDialog.value!
     ) => {
-      const history = latelyList.value[index].history;
+      const latelyDialog = findLatelyDialog(id)
 
-      history.push({ ...item, isFile });
-
-      latelyList.value[index] = {
-        ...latelyList.value[index],
-        history,
-      };
+      if (latelyDialog) {
+        latelyDialog.history.push({ ...item, isFile }); // 添加到历史记录
+      }
     };
-    const removeLatelyList = (index: number) => {
-      latelyList.value.splice(index, 1);
+    const removeLatelyList = (id: number) => {
+      const index = findIndexLatelyDialog(id);
+      if (index != -1) {
+        latelyList.value.splice(index, 1);
+      }
     };
 
     const popLatelyList = () => {
-      latelyList.value[currentDialog.value!].history.pop()
-    }
+      const latelyDialog = findLatelyDialog(currentDialog.value!);
+      latelyDialog?.history.pop();
+    };
 
     const setCurrentDialog = (id: number | null) => {
       currentDialog.value = id;
@@ -69,11 +69,14 @@ export const useLatelyDialogStore = defineStore(
         };
       }
 
-      return latelyList.value[currentDialog.value];
+      return findLatelyDialog(currentDialog.value)!
     });
 
-    const setName = (index: number, name: string) => {
-      latelyList.value[index].name = name;
+    const setName = (id: number, name: string) => {
+      const index = findIndexLatelyDialog(id);
+      if (index != -1) {
+        latelyList.value[index].name = name;
+      }
     };
 
     const setRunning = (value: boolean) => {
@@ -82,6 +85,10 @@ export const useLatelyDialogStore = defineStore(
 
     const findIndexLatelyDialog = (id: number) => {
       return latelyList.value.findIndex((item) => item.id === id);
+    };
+
+    const findLatelyDialog = (id: number) => {
+      return latelyList.value.find((item) => item.id === id);
     };
 
     return {
@@ -95,6 +102,7 @@ export const useLatelyDialogStore = defineStore(
       popLatelyList,
       findIndexLatelyDialog,
       setCurrentDialog,
+      findLatelyDialog,
       setName,
       setRunning,
     };
