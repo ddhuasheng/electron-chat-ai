@@ -4,7 +4,7 @@ import { ComponentTypeEnum } from '@/enums'
 
 
 export const useFavoriteStore = defineStore(
-  "container",
+  "other",
   () => {
     const component = ref<ComponentTypeEnum>(ComponentTypeEnum.CONTAINER)
     const fileIds = ref<string[]>([])

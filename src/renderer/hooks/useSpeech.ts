@@ -7,10 +7,13 @@ const defaultOptions = {
   rate: 1.3,
   pitch: 1,
   voice: window.speechSynthesis.getVoices()[0],
-}
+};
 
 export const useSpeech = () => {
-  const speech = (text: string, options: Partial<typeof defaultOptions> = {}) => {
+  const speech = (
+    text: string,
+    options: Partial<typeof defaultOptions> = {}
+  ) => {
     const { error } = useDialogUtils();
 
     if (!window.speechSynthesis) {
@@ -55,7 +58,7 @@ export const useSpeech = () => {
     };
 
     utterance.onerror = (err) => {
-      console.log("speech error", err)
+      console.log("speech error", err);
 
       if (eventBus["error"]) {
         eventBus["error"].forEach((cb) => cb(err));
@@ -107,7 +110,7 @@ export const useSpeech = () => {
       }
       if (!window.speechSynthesis.getVoices().length) {
         error("当前浏览器不支持语音合成");
-        return
+        return;
       }
       if (window.speechSynthesis.paused) {
         resume();

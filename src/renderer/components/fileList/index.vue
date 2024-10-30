@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, h } from "vue";
+import { ref, h, computed } from "vue";
 import dayjs from "dayjs";
 import {
   NDataTable,
@@ -7,7 +7,8 @@ import {
   NPopconfirm,
   NEmpty,
   NSpace,
-  NButton
+  NButton,
+  NInput,
 } from "naive-ui";
 import { UploadFile } from "../index";
 import { FileListVO } from "@/types";
@@ -20,7 +21,7 @@ const { success, warning } = useDialogUtils();
 const { setComponent, setFileIds, setFileNames } = useFavoriteStore();
 const { setCurrentDialog } = useLatelyDialogStore();
 
-const records = ref<FileListVO[]>([])
+const records = ref<FileListVO[]>([]);
 
 const columns: DataTableColumns<FileListVO> = [
   {
@@ -110,6 +111,7 @@ const columns: DataTableColumns<FileListVO> = [
 
 const fileList = ref<FileListVO[]>([]);
 const loading = ref(false);
+const searchText = ref("");
 
 const init = () => {
   loading.value = true;
@@ -123,33 +125,61 @@ const init = () => {
 };
 
 const handleCheck = (_: any[], rows: any[]) => {
-  records.value = [...rows]
-}
+  records.value = [...rows];
+};
 
 const multipleChat = () => {
   if (records.value.length === 0) {
     warning("请选择文件");
-    return
+    return;
   }
 
   setFileIds(records.value.map((item) => item.id));
   setFileNames(records.value.map((item) => item.name));
   setComponent(ComponentTypeEnum.CONTAINER);
-  setCurrentDialog(null)
-}
+  setCurrentDialog(null);
+};
+
+const data = computed(() => {
+  if (searchText.value) {
+    return fileList.value.filter((item) =>
+      item.name.includes(searchText.value)
+    );
+  }
+
+  return fileList.value;
+});
 
 init();
 </script>
 
 <template>
   <div>
-    <div class="border-b flex justify-between">
-      <upload-file @finish="init" />
-      <n-button @click="multipleChat" style="--n-text-color: #333; --n-border: 1px solid rgba(0, 0, 0, 0.1)">多文件对话</n-button>
+    <div class="border-b flex justify-between gap-[20px]">
+      <div class="flex-1">
+        <n-input
+          v-model:value="searchText"
+          placeholder="搜索文件名"
+          style="
+            width: 100%;
+            --n-text-color: #333;
+            --n-placeholder-color: #333;
+            --n-border: 1px solid #f2f2f5;
+          "
+        ></n-input>
+      </div>
+      <div class="flex justify-between gap-[10px]">
+        <upload-file @finish="init" />
+        <n-button
+          @click="multipleChat"
+          style="--n-text-color: #333; --n-border: 1px solid rgba(0, 0, 0, 0.1)"
+          >多文件对话</n-button
+        >
+      </div>
     </div>
 
     <n-data-table
-      :data="fileList"
+      :data="data"
       :loading="loading"
       :columns="columns"
       :bordered="false"
