@@ -155,11 +155,11 @@ onMounted(async () => {
               {{ current?.name }}
             </n-ellipsis>
             <n-ellipsis
-              v-if="current.isFile || fileIds.length"
+              v-if="current.isFile && fileNames.length"
               :line-clamp="1"
               class="bg-[#f9fafb] px-[8px] py-[6px] rounded-[8px]"
             >
-              {{ current.isFile || fileIds.length ? fileNames.join("、") : "" }}
+              {{ current.isFile || fileNames.length ? fileNames.join("、") : "" }}
             </n-ellipsis>
           </div>
         </template>
