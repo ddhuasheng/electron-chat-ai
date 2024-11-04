@@ -40,7 +40,7 @@ const submit = () => {
   if (current.value.history.length === 1 && fileIds.value.length) {
     FileChatServices.FileChat({
       fileIds: fileIds.value,
-      history: current.value.history,
+      history: [...current.value.history, userMessage],
       id: current.value.id,
     })
       .then((res) => {

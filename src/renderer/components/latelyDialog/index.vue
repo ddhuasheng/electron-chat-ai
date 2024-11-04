@@ -22,7 +22,7 @@ import { latelyDialogState } from "@/types";
 import { shared } from "@/utils";
 
 const store = useLatelyDialogStore();
-const { setComponent, setFileIds } = useFavoriteStore();
+const { setComponent, setFileIds, setFileNames } = useFavoriteStore();
 
 const { latelyList, currentDialog } = storeToRefs(store);
 const isExpanded = ref(true);
@@ -57,6 +57,7 @@ const clickHandle = (id: number) => {
   store.setCurrentDialog(id);
   setComponent(ComponentTypeEnum.CONTAINER);
   setFileIds([]);
+  setFileNames([])
 };
 
 const handleSelect = async (key: string, item: latelyDialogState) => {
@@ -95,6 +96,8 @@ const handleSelect = async (key: string, item: latelyDialogState) => {
             store.setCurrentDialog(item.id);
           }
           setFileIds([]);
+          setFileNames([]);
+          
           setComponent(ComponentTypeEnum.CONTAINER);
           store.removeLatelyList(item.id);
         },
