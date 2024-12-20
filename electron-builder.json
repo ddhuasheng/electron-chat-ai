@@ -1,9 +1,18 @@
 {
   "productName": "electron-chat-ai",
   "appId": "com.electron.electron-chat-ai",
-  "files": ["./src/main/index.js", "./src/main/preload.js", "./dist"],
+  "files": ["./src/main/index.js", "./src/main/preload.js", "./dist", "./src/main/script/installer.nsh"],
   "extraFiles": ["./videos", "./cvideo"],
   "directories": {
     "output": "./builder"
+  },
+  "win": {
+    "target": ["nsis"]
+  },
+  "nsis": {
+    "include": "./src/main/script/installer.nsh",
+    "oneClick": false,
+    "perMachine": true,
+    "allowToChangeInstallationDirectory": true
   }
 }
